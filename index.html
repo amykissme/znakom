@@ -1,534 +1,889 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="purple">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Знакомства</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>FlowersMeet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
 <style>
-:root{
-  --bg:#09090a;
-  --panel:#131315;
-  --panel-2:#1a1a1d;
-  --line:#2a2a2f;
-  --red:#d90429;
-  --red-hi:#ff2d4d;
-  --red-dark:#7a0b1c;
-  --text:#ececee;
-  --muted:#85858d;
-  --r:6px;
+/* ================= ТЕМЫ (только однотонные цвета, без градиентов) ================= */
+/* Фиолетовая — тема по умолчанию */
+:root,[data-theme="purple"]{
+  --bg:#140a24; --surface:#1f1235; --surface2:#291a45; --border:#38255c;
+  --text:#fbf1ff; --muted:#b39dd0; --logo-white:#ffffff;
+  --a1:#ff5fb3; --a2:#a37bff; --tint:rgba(255,95,179,.11);
+  --shade:rgba(20,10,36,.84); --gold:#ffc61a; --gold-ink:#2b1d00; --lilac:#c9a2ff; --lilac-bg:rgba(201,162,255,.14); --lime:#a6ff3d; --lime-ink:#0f2203;
 }
+[data-theme="dark"]{
+  --bg:#09090d; --surface:#14141a; --surface2:#1c1c24; --border:#27272f;
+  --text:#f4f4f8; --muted:#8b8b9c; --logo-white:#ffffff;
+  --a1:#ff3d5e; --a2:#3d86ff; --tint:rgba(255,61,94,.11);
+  --shade:rgba(9,9,13,.84); --gold:#ffc61a; --gold-ink:#2b1d00; --lilac:#c9a2ff; --lilac-bg:rgba(201,162,255,.14); --lime:#a6ff3d; --lime-ink:#0f2203;
+}
+[data-theme="light"]{
+  --bg:#f3f3f9; --surface:#ffffff; --surface2:#ebebf4; --border:#dcdce9;
+  --text:#16161f; --muted:#6b6b80; --logo-white:#16161f;
+  --a1:#e0245e; --a2:#2f6bef; --tint:rgba(224,36,94,.09);
+  --shade:rgba(22,22,31,.80); --gold:#f5b400; --gold-ink:#2b1d00; --lilac:#8a4fe0; --lilac-bg:rgba(138,79,224,.12); --lime:#8fe51d; --lime-ink:#0f2203;
+}
+:root{ --pix:'Pixelify Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; --lilac-ink:#1d0b3a; }
+[data-theme="light"]{ --lilac-ink:#ffffff; }
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing:antialiased;overscroll-behavior:none}
-body{display:flex;flex-direction:column;overflow:hidden;height:var(--tgh,100dvh)}
-button,select{touch-action:manipulation}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);overscroll-behavior:none;overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
+#app{height:100vh;display:flex;flex-direction:column}
+@supports (height:100dvh){#app{height:100dvh}}
+svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 
-/* ---------- верх ---------- */
-.top{padding:14px 18px 12px;padding-top:calc(14px + env(safe-area-inset-top,0px));
-  border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
-  background:linear-gradient(180deg,#101012,var(--bg))}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.14em;font-size:13px;text-transform:uppercase}
-.brand i{width:12px;height:12px;background:var(--red);transform:rotate(45deg);border-radius:2px;display:block;
-  box-shadow:0 0 10px rgba(217,4,41,.55);animation:logoSpin 3.2s linear infinite;will-change:transform}
-@keyframes logoSpin{from{transform:rotate(45deg)}to{transform:rotate(405deg)}}
-@media (prefers-reduced-motion:reduce){.brand i{animation-duration:12s}}
-.plan-badge{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-  border:1px solid var(--line);padding:5px 9px;border-radius:var(--r)}
-.plan-badge.on{color:var(--red-hi);border-color:var(--red-dark)}
+/* ================= ШАПКА ================= */
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 16px 8px}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--pix);font-weight:700;font-size:20px;letter-spacing:.01em;white-space:nowrap}
+.logo svg{width:26px;height:26px;color:var(--a1);flex-shrink:0;animation:logospin 6s linear infinite}
+@keyframes logospin{to{transform:rotate(360deg)}}
+.logo .w{color:var(--logo-white)}
+.logo .m{color:var(--a1)}
+.hr{display:flex;align-items:center;gap:6px}
+.chip{font-family:var(--pix);font-size:12px;font-weight:600;padding:6px 10px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.chip.pro{color:var(--a1);border-color:var(--a1)}
+.gem{position:relative;display:flex;align-items:center;gap:6px;font-family:var(--pix);font-weight:700;font-size:15px;
+  padding:5px 11px 5px 8px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--lime)}
+.gem svg.i{width:19px;height:19px;fill:var(--lime);fill-opacity:.2;stroke:var(--lime)}
+.gem.pulse{animation:pulse .5s ease}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.gemfx{position:absolute;right:6px;top:100%;font-size:13px;font-weight:700;color:var(--lime);pointer-events:none;
+  animation:fx 1s ease forwards}
+@keyframes fx{from{opacity:.9;transform:translateY(-2px)}to{opacity:0;transform:translateY(12px)}}
 
-/* ---------- контент ---------- */
-main{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 40px;-webkit-overflow-scrolling:touch}
-.tab{display:none;animation:fade .25s ease}
-.tab.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-h1{font-size:20px;font-weight:700;letter-spacing:.02em;margin-bottom:4px}
-.sub{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.45}
-.divider{height:1px;background:var(--line);margin:18px 0}
+/* ================= КОНТЕНТ ================= */
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 18px 18px;-webkit-overflow-scrolling:touch}
+.tab{display:none}
+.tab.active{display:block;animation:rise .3s ease}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h1{font-family:var(--pix);font-size:27px;font-weight:700;letter-spacing:.01em;margin-bottom:4px}
+.sub{color:var(--muted);font-size:14px;line-height:1.45;margin-bottom:16px}
 
-/* ---------- формы ---------- */
-.photo-box{display:flex;gap:16px;align-items:center;margin-bottom:18px}
-.photo{width:96px;height:120px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
-  background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;
-  color:var(--muted);flex-shrink:0;position:relative;overflow:hidden}
-.photo svg{width:32px;height:32px}
-.photo.has svg{display:none}
-.field{margin-bottom:14px}
-label.l{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-input[type=text],input[type=number],select,textarea{
-  width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);
-  border-radius:var(--r);padding:12px 13px;font-size:15px;font-family:inherit;outline:none;
-  transition:border-color .15s;appearance:none;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{border-color:var(--red)}
-textarea{resize:none;height:96px;line-height:1.4}
-.row{display:flex;gap:10px}
-.row .field{flex:1}
-.count{text-align:right;font-size:11px;color:var(--muted);margin-top:4px}
+/* ================= ГЕМЫ (инфо в ленте) ================= */
+.gemrow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 14px;margin-bottom:14px}
+.gemrow b{color:var(--lime);font-family:var(--pix);font-weight:700}
+.gemrow.cd{color:var(--text)}
+.gemrow svg.i{width:18px;height:18px;color:var(--lime);flex-shrink:0}
+.gemrow .l{display:flex;align-items:center;gap:8px}
 
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  border:1px solid var(--red);background:var(--red);color:#fff;font-weight:600;font-size:14px;
-  letter-spacing:.08em;text-transform:uppercase;padding:14px;border-radius:var(--r);cursor:pointer;
-  transition:background .15s,transform .05s}
-.btn:active{transform:scale(.985);background:var(--red-dark)}
-.btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
-.btn.ghost:active{background:var(--panel-2)}
-.btn svg{width:18px;height:18px}
+/* ================= ЛЕНТА ================= */
+.stack{position:relative;height:min(56vh,460px);margin-top:2px}
+@supports (height:100dvh){.stack{height:min(56dvh,460px)}}
+.pcard{position:absolute;inset:0;border-radius:28px;overflow:hidden;background:var(--surface);
+  border:1.5px solid var(--border);touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform}
+.pcard.next{transform:scale(.95) translateY(12px);opacity:.55;pointer-events:none}
+.pcard.top{z-index:2;cursor:grab}
+.pcard.top.enter{animation:settle .4s ease}
+@keyframes settle{from{opacity:.5;transform:scale(.96)}to{opacity:1;transform:none}}
+.pic{position:absolute;inset:0;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
+.pic .fl{position:absolute;width:64%;height:64%;right:-12%;top:-6%;color:#fff;opacity:.1;fill:currentColor;stroke:none}
+.pic .ini{font-family:var(--pix);font-size:110px;font-weight:700;color:rgba(255,255,255,.88);margin-top:-60px}
+.info{position:absolute;left:0;right:0;bottom:0;padding:16px 20px 20px;background:var(--shade);color:#fff}
+.info h2{font-family:var(--pix);font-size:26px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;flex-wrap:wrap;gap:2px 8px}
+.info p{font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.86);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.actions{display:flex;justify-content:center;gap:22px;margin-top:22px}
+.round{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:transform .2s ease,background .2s;font-family:inherit}
+.round:active{transform:scale(.95)}
+.round svg.i{width:30px;height:30px;stroke-width:2}
+.round.no{background:var(--surface);color:var(--a2);border:2px solid var(--a2)}
+.round.yes{background:var(--a1);color:#fff;border:2px solid var(--a1)}
+.round.yes svg.i{fill:#fff}
+.empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  border:1.5px dashed var(--border);border-radius:28px;padding:26px;color:var(--muted)}
+.empty svg.i{width:52px;height:52px;color:var(--a1);margin-bottom:14px}
+.empty p{font-size:15px;line-height:1.5;margin-bottom:18px}
+
+/* ================= КНОПКИ И ПОЛЯ ================= */
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:none;cursor:pointer;
+  background:var(--a1);color:#fff;font-family:var(--pix);font-weight:600;font-size:16px;padding:14px;border-radius:16px;
+  transition:transform .15s,opacity .15s;touch-action:manipulation;position:relative;z-index:1}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn.small{width:auto;padding:11px 18px;font-size:15px}
+.btn.lime{background:var(--lime);color:var(--lime-ink)}
+.btn:disabled{opacity:.5;cursor:default}
 .btn+.btn{margin-top:10px}
-.btn.small{width:auto;padding:10px 14px;font-size:12px}
-.status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:16px}
-.status b{width:8px;height:8px;background:var(--muted);transform:rotate(45deg);display:block}
-.status.ok b{background:var(--red)}
+.btn svg.i{width:20px;height:20px}
+label.l{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 7px 4px}
+input[type=text],textarea{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);
+  border-radius:16px;padding:14px 16px;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
+input:focus,textarea:focus{border-color:var(--a1)}
+textarea{resize:none;height:112px;line-height:1.45}
+.field{margin-bottom:16px}
+.count{text-align:right;font-size:12px;color:var(--muted);margin:5px 4px 0}
+
+/* ================= АНКЕТА ================= */
+.avatar{width:148px;height:148px;margin:6px auto 22px;border-radius:40px;background:var(--surface);
+  border:2px dashed var(--border);background-size:cover;background-position:center;position:relative;
+  display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:transform .15s}
+.avatar:active{transform:scale(.98)}
+.avatar input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3;font-size:0;border-radius:inherit}
+.avatar.has{border:2px solid var(--a1)}
+.avatar svg.i{width:38px;height:38px}
+.avatar.has svg.i{display:none}
+.avatar .plus{position:absolute;right:-6px;bottom:-6px;width:38px;height:38px;border-radius:50%;background:var(--a1);
+  color:#fff;display:flex;align-items:center;justify-content:center;border:3px solid var(--bg)}
+.avatar .plus svg.i{display:block;width:19px;height:19px}
+.pv-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:26px 0 12px 4px}
+.pv{position:relative;height:300px}
+.banner{position:absolute;left:0;right:0;top:0;height:54px;overflow:hidden}
+.banner svg{position:absolute;color:#fff;opacity:.2}
+.banner .b1{width:74px;height:74px;right:-14px;top:-22px}
+.banner .b2{width:36px;height:36px;right:74px;top:24px}
+.bd{width:22px;height:22px;color:rgba(255,255,255,.92);flex-shrink:0}
+.bd-t{font-family:var(--pix);font-size:12px;font-weight:700;color:rgba(255,255,255,.92);border:1.5px solid rgba(255,255,255,.92);border-radius:7px;padding:1px 6px;line-height:1.3}
+.info .tg{font-size:15px;font-weight:600;color:rgba(200,200,212,.55)}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:16px}
+.status b{width:9px;height:9px;border-radius:50%;background:var(--muted)}
 .status.ok{color:var(--text)}
+.status.ok b{background:var(--lime)}
 
+/* настройки профиля */
+.plan .hint{margin:10px 2px 0}
+.bngrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bdgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bn,.bdo{border:2px solid var(--border);border-radius:16px;padding:8px 6px 9px;background:var(--surface);color:var(--text);cursor:pointer;
+  font-family:var(--pix);font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:7px;
+  touch-action:manipulation;transition:border-color .2s}
+.bn.sel,.bdo.sel{border-color:var(--a1);background:var(--tint)}
+.bnc{width:100%;height:34px;border-radius:9px;border:1px solid rgba(128,128,128,.25)}
+.bnc.none{background:transparent;border:1.5px dashed var(--border)}
+.bdo .ico{height:34px;display:flex;align-items:center;justify-content:center}
+.bdo .bd{width:28px;height:28px;color:var(--text)}
+.bdo .bd-t{color:var(--text);border-color:var(--text)}
+.bdo.locked{opacity:.5}
+.hashbox{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 16px}
+.hashbox:focus-within{border-color:var(--a1)}
+.hashbox span{color:var(--muted);font-family:var(--pix);font-size:18px}
+.hashbox input[type=text]{border:none;background:none;padding:14px 0;border-radius:0}
 
-/* ---------- моя анкета (новый дизайн) ---------- */
-.hero{display:flex;gap:16px;align-items:center;padding:16px;margin-bottom:14px;
-  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
-.hero .photo{width:92px;height:116px;cursor:pointer;border-color:var(--red-dark)}
-.hero .photo .plus{position:absolute;right:6px;bottom:6px;width:22px;height:22px;border-radius:4px;
-  background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;line-height:1}
-.hero-info{flex:1;min-width:0}
-.hero-info h1{font-size:20px;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hero-sub{color:var(--muted);font-size:13px;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hero-info .status{margin-bottom:8px}
-.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--red);border-radius:2px;transition:width .3s ease}
-.group{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 4px;margin-bottom:14px}
-.g-title{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--red-hi);font-weight:700;margin-bottom:14px}
-.g-title::before{content:"";width:6px;height:6px;background:var(--red);transform:rotate(45deg);display:block}
-.group input[type=text],.group input[type=number],.group select,.group textarea{background:var(--bg)}
-.hint{color:var(--muted);font-size:12px;line-height:1.4;margin-top:8px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:center}
-.stat b{display:block;font-size:26px;font-weight:700;line-height:1.1}
-.stat span{display:block;margin-top:5px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.unavail{text-align:center;padding:56px 22px;border:1px dashed var(--line);border-radius:var(--r);background:var(--panel)}
-.unavail svg{width:42px;height:42px;color:var(--red);margin-bottom:14px}
-.unavail h2{font-size:18px;margin-bottom:8px}
-.unavail p{color:var(--muted);font-size:14px;line-height:1.5}
+/* лента временно недоступна */
+.soon.off .bub,.soon.off b{color:var(--a1)}
 
-/* ---------- оценка ---------- */
-.card{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden}
-.card .pic{height:min(46vh,380px);background-size:cover;background-position:center;position:relative;
-  display:flex;align-items:center;justify-content:center}
-.card .pic .ini{font-size:80px;font-weight:700;color:rgba(255,255,255,.88);letter-spacing:.04em}
-.card .pic::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 45%,rgba(9,9,10,.92))}
-.card .meta{position:absolute;left:16px;right:16px;bottom:12px;z-index:2}
-.card .meta h2{font-size:22px;font-weight:700}
-.card .meta span{color:var(--muted);font-size:13px}
-.card .about{padding:14px 16px;font-size:14px;line-height:1.5;color:#c9c9ce;border-top:1px solid var(--line)}
-.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 10px}
-.scale button{background:var(--panel);border:1px solid var(--line);color:var(--text);
-  padding:13px 0;font-size:16px;font-weight:600;border-radius:var(--r);cursor:pointer;transition:all .12s}
-.scale button:active,.scale button.sel{background:var(--red);border-color:var(--red);color:#fff}
-.limit{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:12px}
-.limit b{color:var(--text)}
-.empty{text-align:center;padding:60px 20px;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
-.empty svg{width:40px;height:40px;color:var(--red);margin-bottom:12px}
-.empty p{margin-bottom:16px;font-size:14px;line-height:1.5}
+/* карточка анкеты */
+.me-card{background:var(--surface);border:1px solid var(--border);border-radius:26px;padding:18px;margin-bottom:16px}
+.me-top{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.me-top .avatar{width:104px;height:104px;margin:0;border-radius:30px;flex-shrink:0;background-color:var(--bg)}
+.me-top .avatar svg.i{width:30px;height:30px}
+.me-top .avatar .plus{width:32px;height:32px;right:-5px;bottom:-5px}
+.me-top .avatar .plus svg.i{width:16px;height:16px}
+.me-top .field{flex:1;min-width:0;margin:0}
+.me-card .field:last-child{margin-bottom:0}
+.me-card input[type=text],.me-card textarea{background:var(--bg)}
+.me-card textarea{height:104px}
+.hint{font-size:12px;color:var(--muted);margin:7px 4px 0;line-height:1.35}
 
-/* ---------- подписка ---------- */
-.plan{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:16px;margin-bottom:12px;position:relative}
-.plan.cur{border-color:var(--red)}
-.plan.hot::before{content:"ХИТ";position:absolute;top:-1px;right:14px;background:var(--red);color:#fff;
-  font-size:10px;letter-spacing:.14em;padding:4px 9px;border-radius:0 0 4px 4px;font-weight:700}
-.plan h3{font-size:16px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:baseline;gap:10px}
-.plan h3 em{font-style:normal;color:var(--red-hi);font-size:14px;letter-spacing:.02em;text-transform:none}
-.plan ul{list-style:none;margin:12px 0 14px}
-.plan li{display:flex;gap:10px;font-size:14px;color:#c9c9ce;padding:5px 0;line-height:1.35}
-.plan li svg{width:16px;height:16px;color:var(--red);flex-shrink:0;margin-top:2px}
+/* ================= ЧАТ ================= */
+.soon{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  min-height:52vh;border:1.5px dashed var(--border);border-radius:28px;padding:30px;margin-top:6px}
+.soon .bub{width:84px;height:84px;border-radius:26px;background:var(--surface);border:1px solid var(--border);
+  color:var(--lime);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.soon .bub svg.i{width:42px;height:42px;stroke-width:1.7}
+.soon b{font-family:var(--pix);font-size:24px;font-weight:700;color:var(--lime);margin-bottom:8px}
+.soon p{color:var(--muted);font-size:14.5px;line-height:1.5;max-width:260px}
 
-/* ---------- нижняя панель ---------- */
-nav{position:relative;z-index:5;flex-shrink:0;display:flex;border-top:1px solid var(--line);background:#0d0d0f;
-  padding-bottom:env(safe-area-inset-bottom,0px)}
-nav button{flex:1;background:none;border:none;color:var(--muted);padding:10px 0 9px;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;letter-spacing:.08em;
-  text-transform:uppercase;font-family:inherit;position:relative;transition:color .15s}
-nav button svg{width:24px;height:24px;transition:transform .15s}
-nav button.active{color:var(--red-hi)}
-nav button.active svg{transform:translateY(-1px)}
-nav button.active::before{content:"";position:absolute;top:-1px;left:28%;right:28%;height:2px;background:var(--red)}
+/* ================= ПОДПИСКА ================= */
+.plan{position:relative;border-radius:26px;padding:22px;margin-bottom:14px;background:var(--surface);border:1.5px solid var(--border)}
+.plan.cur{border-color:var(--a2)}
+.plan.pro{border-color:var(--a1)}
+.plan .tag{position:absolute;top:18px;right:18px;font-family:var(--pix);font-size:11px;font-weight:600;padding:4px 9px;border-radius:9px;
+  background:var(--a1);color:#fff}
+.plan h3{font-family:var(--pix);font-size:25px;font-weight:700;display:flex;align-items:center;gap:10px}
+.plan h3 svg.i{width:26px;height:26px;fill:currentColor;stroke:none;color:var(--a1)}
+.plan .price{margin:6px 0 14px;font-size:15px;color:var(--muted)}
+.plan .price b{font-family:var(--pix);font-size:20px;color:var(--text)}
+.plan ul{list-style:none;margin-bottom:18px}
+.plan li{display:flex;gap:11px;font-size:15px;line-height:1.4;padding:6px 0}
+.plan li svg.i{width:20px;height:20px;color:var(--a1);flex-shrink:0;margin-top:1px;stroke-width:2.4}
 
-/* ---------- тост ---------- */
-.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--panel-2);
-  border:1px solid var(--red-dark);color:var(--text);padding:11px 16px;border-radius:var(--r);
-  font-size:13px;opacity:0;pointer-events:none;transition:all .25s;z-index:50;max-width:88%;text-align:center}
+/* ================= НАСТРОЙКИ ================= */
+.ghead{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px 4px}
+.group{background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden}
+.row{display:flex;align-items:center;gap:14px;width:100%;padding:15px 18px;background:none;border:none;color:var(--text);
+  text-align:left;font-family:inherit;font-size:16px;cursor:pointer;transition:background .15s}
+.row:active{background:var(--tint)}
+.group>*+*{border-top:1px solid var(--border)}
+.ric{width:40px;height:40px;border-radius:12px;background:var(--tint);color:var(--a1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ric svg.i{width:21px;height:21px}
+.ric.mute{background:var(--surface2);color:var(--muted)}
+.rt{flex:1;display:flex;flex-direction:column;gap:2px}
+.rt b{font-weight:600}
+.rt small{color:var(--muted);font-size:13px;line-height:1.35}
+.row.locked .rt b{opacity:.8}
+
+.row .go{color:var(--muted);font-size:22px}
+.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 18px 18px}
+.theme-card{border:2px solid var(--border);border-radius:16px;padding:9px 8px 10px;background:var(--bg);color:var(--text);
+  cursor:pointer;font-family:var(--pix);font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .2s}
+.theme-card.sel{border-color:var(--a1);background:var(--tint)}
+.sw{width:100%;height:42px;border-radius:10px;position:relative;border:1px solid rgba(128,128,128,.25)}
+.sw i{position:absolute;border-radius:50%;width:20px;height:20px;top:10px}
+.sw i:nth-child(1){left:9px}.sw i:nth-child(2){right:9px}
+.sw.purple{background:#140a24}.sw.purple i:nth-child(1){background:#ff5fb3}.sw.purple i:nth-child(2){background:#a37bff}
+.sw.dark{background:#09090d}.sw.dark i:nth-child(1){background:#ff3d5e}.sw.dark i:nth-child(2){background:#3d86ff}
+.sw.light{background:#f3f3f9}.sw.light i:nth-child(1){background:#e0245e}.sw.light i:nth-child(2){background:#2f6bef}
+.themehead{padding:16px 18px 12px;display:flex;align-items:center;gap:14px}
+.switch{width:50px;height:30px;border-radius:99px;background:var(--surface2);position:relative;transition:background .25s;flex-shrink:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--muted);transition:all .25s}
+.switch.on{background:var(--a1)}
+.switch.on::after{left:23px;background:#fff}
+
+/* ================= НИЖНЯЯ ПАНЕЛЬ ================= */
+nav{display:flex;gap:2px;margin:0 12px calc(10px + env(safe-area-inset-bottom,0px));padding:5px;
+  background:var(--surface);border:1px solid var(--border);border-radius:22px}
+nav button{flex:1;min-width:0;background:none;border:none;color:var(--muted);padding:9px 0 8px;border-radius:17px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--pix);font-size:10px;font-weight:600;
+  transition:background .25s,color .25s}
+nav button svg.i{width:22px;height:22px}
+nav button.active{background:var(--tint);color:var(--a1)}
+nav button.chat.active{background:var(--lime);color:var(--lime-ink)}
+nav button.subtab.active{background:var(--gold);color:var(--gold-ink)}
+nav button.psettab.active{background:var(--lilac);color:var(--lilac-ink)}
+
+/* ================= ТОСТ ================= */
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,10px);background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);padding:11px 18px;border-radius:14px;font-size:14px;opacity:0;pointer-events:none;
+  transition:all .3s ease;z-index:60;max-width:88%;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
 
-<!-- Иконки: угловатые формы с лёгким скруглением стыков -->
+<!-- ======== ИКОНКИ ======== -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M12 3.5 16 7.5v3.2L12 14.5 8 10.7V7.5z"/>
-      <path d="M4 21v-2.5l4.5-3.5h7l4.5 3.5V21z"/>
+    <symbol id="i-flower" viewBox="0 0 24 24">
+      <g fill="currentColor" stroke="none">
+        <ellipse cx="12" cy="6" rx="3.1" ry="4.3"/>
+        <ellipse cx="12" cy="6" rx="3.1" ry="4.3" transform="rotate(72 12 12)"/>
+        <ellipse cx="12" cy="6" rx="3.1" ry="4.3" transform="rotate(144 12 12)"/>
+        <ellipse cx="12" cy="6" rx="3.1" ry="4.3" transform="rotate(216 12 12)"/>
+        <ellipse cx="12" cy="6" rx="3.1" ry="4.3" transform="rotate(288 12 12)"/>
+      </g>
+      <circle cx="12" cy="12" r="3" fill="var(--bg)" stroke="none"/>
     </symbol>
-    <symbol id="i-rate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M12 2.8 14.7 9l6.6.6-5 4.4 1.6 6.6L12 17.2 6.1 20.6 7.7 14l-5-4.4L9.3 9z"/>
-    </symbol>
-    <symbol id="i-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M3 8l4.5 4L12 4.5 16.5 12 21 8l-1.8 11H4.8z"/>
-      <path d="M5.5 21h13"/>
-    </symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>
-    </symbol>
-    <symbol id="i-cam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M3 8h4l2-3h6l2 3h4v12H3z"/><path d="M12 10.5l3 2.2v1.6L12 16.5l-3-2.2v-1.6z"/>
-    </symbol>
-    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M21 3 3 10.5l7 3 3 7z"/><path d="M10 13.5 21 3"/>
-    </symbol>
-    <symbol id="i-skip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M5 5l7 7-7 7zM13 5l7 7-7 7z"/>
-    </symbol>
-    <symbol id="i-reset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4.5h4.5"/>
-    </symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="4" y="7" width="12.5" height="14" rx="3.5"/><path d="M8 3.5h8.5A3.5 3.5 0 0 1 20 7v9"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5z"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3.5 8.5l4.3 3.9L12 5.5l4.2 6.9 4.3-3.9-1.7 10H5.2z"/><path d="M6 21.5h12"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8M18 7h2M4 17h2M12 17h8"/><circle cx="15" cy="7" r="2.6"/><circle cx="9" cy="17" r="2.6"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.4-4 4.2-6 7.5-6s6.1 2 7.5 6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.6C5.2 15.8 3 12.4 3 9a4.9 4.9 0 0 1 9-2.6A4.9 4.9 0 0 1 21 9c0 3.4-2.2 6.8-9 11.6z"/></symbol>
+    <symbol id="i-broken" viewBox="0 0 24 24"><path d="M12 20.6C5.2 15.8 3 12.4 3 9a4.9 4.9 0 0 1 9-2.6A4.9 4.9 0 0 1 21 9c0 3.4-2.2 6.8-9 11.6z"/><path d="M12.4 6.6 10 10.6l3.6 2.2-2.2 4.6"/></symbol>
+    <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6.5 3.5h11L21.5 9 12 20.5 2.5 9z"/><path d="M2.5 9h19M9.5 3.5 8 9l4 11.5M14.5 3.5 16 9l-4 11.5"/></symbol>
+    <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6.5 3h11M6.5 21h11M8 3v3.5L12 12l4-5.5V3M8 21v-3.5L12 12l4 5.5V21"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><path d="M3.5 8.5A2.5 2.5 0 0 1 6 6h2l1.5-2h5L16 6h2a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 20H6a2.5 2.5 0 0 1-2.5-2.5z"/><circle cx="12" cy="12.5" r="3.4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.6h4.6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5h10L18 7M9 7V4.5h6V7"/></symbol>
+    <symbol id="i-vib" viewBox="0 0 24 24"><rect x="8" y="3.5" width="8" height="17" rx="2.5"/><path d="M4.5 8v8M19.5 8v8"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.6 0 2-1 1.4-2.1-.7-1.3.1-2.4 1.5-2.4H17a3.5 3.5 0 0 0 3.5-3.5C20.5 7.2 16.7 3.5 12 3.5z"/><circle cx="7.8" cy="11" r=".9"/><circle cx="10.5" cy="7.4" r=".9"/><circle cx="15" cy="7.8" r=".9"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 6 6.5.8-4.8 4.5 1.3 6.5L12 17.3l-5.8 3.3 1.3-6.5L2.7 9.6l6.5-.8z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-paw" viewBox="0 0 24 24"><g fill="currentColor"><ellipse cx="5.4" cy="10.4" rx="2" ry="2.6" transform="rotate(-18 5.4 10.4)"/><ellipse cx="9.4" cy="5.6" rx="2" ry="2.7"/><ellipse cx="14.6" cy="5.6" rx="2" ry="2.7"/><ellipse cx="18.6" cy="10.4" rx="2" ry="2.6" transform="rotate(18 18.6 10.4)"/><path d="M12 11c-3.2 0-6.2 3.7-6.2 6.4 0 1.9 1.5 3 3.4 3 1.1 0 1.8-.5 2.8-.5s1.7.5 2.8.5c1.9 0 3.4-1.1 3.4-3C18.2 14.7 15.2 11 12 11z"/></g></symbol>
+    <symbol id="i-ast" viewBox="0 0 24 24"><path d="M12 3.5v17M4.6 7.8l14.8 8.4M19.4 7.8L4.6 16.2" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
   </defs>
 </svg>
 
-<header class="top">
-  <div class="brand"><i></i>Знакомства</div>
-  <div class="plan-badge" id="planBadge">Старт</div>
-</header>
-
-<main>
-
-  <!-- ===== МОЙ ПРОФИЛЬ ===== -->
-  <section class="tab active" id="tab-profile">
-    <div class="hero">
-      <div class="photo" id="photoPrev" role="button" aria-label="Фото"><svg><use href="#i-cam"/></svg><span class="plus">+</span></div>
-      <div class="hero-info">
-        <h1 id="heroName">Моя анкета</h1>
-        <div class="hero-sub" id="heroSub">Заполните данные о себе</div>
-        <div class="status" id="pStatus"><b></b><span>Анкета не заполнена</span></div>
-        <div class="bar"><i id="barFill"></i></div>
-      </div>
+<div id="app">
+  <header>
+    <div class="logo"><svg><use href="#i-flower"/></svg><span><span class="w">Flowers</span><span class="m">Meet</span></span></div>
+    <div class="hr">
+      <div class="gem" id="gemPill"><svg class="i"><use href="#i-gem"/></svg><span id="gemNum">0</span></div>
+      <div class="chip" id="chip">FlowBase</div>
     </div>
+  </header>
 
-    <button class="btn ghost small" id="photoBtn" type="button" style="width:100%;margin-bottom:14px"><svg><use href="#i-cam"/></svg>Загрузить фото</button>
-    <input type="file" id="photoInput" accept="image/*" hidden>
+  <main id="main">
 
-    <div class="group">
-      <div class="g-title">Основное</div>
-      <div class="field">
-        <label class="l">Имя</label>
-        <input type="text" id="fName" maxlength="30" placeholder="Как вас зовут">
-      </div>
-      <div class="row">
-        <div class="field">
-          <label class="l">Возраст</label>
-          <input type="number" id="fAge" min="18" max="99" placeholder="18+" inputmode="numeric">
+    <!-- ===== ЛЕНТА ===== -->
+    <section class="tab active" id="tab-feed">
+      <h1>Знакомства</h1>
+      <p class="sub">Лайк — если понравился человек, дизлайк — если нет. Можно просто свайпнуть карточку.</p>
+
+      <div id="gemInfo">
+        <div class="gemrow" id="gemNormal">
+          <span class="l"><svg class="i"><use href="#i-gem"/></svg><span>За свайп <b>+10</b> гемов</span></span>
+          <span><b id="gemCount">0</b> / 10 за час</span>
         </div>
-        <div class="field">
-          <label class="l">Пол</label>
-          <select id="fGender">
-            <option value="">—</option>
-            <option value="m">Мужской</option>
-            <option value="f">Женский</option>
-          </select>
+        <div class="gemrow cd" id="gemCd" style="display:none">
+          <span class="l"><svg class="i"><use href="#i-hourglass"/></svg><span>Гемы на перезарядке</span></span>
+          <span>ещё <b id="gemTimer">00:00</b></span>
         </div>
       </div>
-      <div class="field">
-        <label class="l">Город</label>
-        <input type="text" id="fCity" maxlength="40" placeholder="Ваш город">
+
+      <div class="stack" id="stack"></div>
+      <div class="actions" id="actions">
+        <button class="round no" id="btnNo" aria-label="Дизлайк"><svg class="i"><use href="#i-broken"/></svg></button>
+        <button class="round yes" id="btnYes" aria-label="Лайк"><svg class="i"><use href="#i-heart"/></svg></button>
       </div>
-    </div>
+    </section>
 
-    <div class="group">
-      <div class="g-title">О себе</div>
-      <div class="field">
-        <textarea id="fAbout" maxlength="300" placeholder="Коротко о себе, интересах и о том, кого ищете"></textarea>
-        <div class="count"><span id="cnt">0</span> / 300</div>
+    <!-- ===== ЧАТ ===== -->
+    <section class="tab" id="tab-chat">
+      <h1>Чат</h1>
+      <div class="soon">
+        <div class="bub"><svg class="i"><use href="#i-chat"/></svg></div>
+        <b>В разработке</b>
+        <p>Скоро здесь появятся переписки с теми, кто вам понравился.</p>
       </div>
-    </div>
+    </section>
 
-    <button class="btn" id="saveBtn"><svg><use href="#i-check"/></svg>Сохранить анкету</button>
-    <button class="btn ghost" id="publishBtn"><svg><use href="#i-send"/></svg>Отправить анкету в бот</button>
+    <!-- ===== ПОДПИСКА ===== -->
+    <section class="tab" id="tab-sub">
+      <h1>Подписка</h1>
+      <p class="sub">Выберите, как вам удобнее пользоваться FlowersMeet.</p>
 
-    <div class="divider"></div>
-    <div class="stats">
-      <div class="stat"><b id="stRated">0</b><span>Оценено</span></div>
-      <div class="stat"><b id="stAvg">—</b><span>Ср. оценка</span></div>
-    </div>
-  </section>
+      <div class="plan" id="plan-flowbase">
+        <h3>FlowBase</h3>
+        <div class="price"><b>Бесплатно</b></div>
+        <ul>
+          <li><svg class="i"><use href="#i-check"/></svg>Анкета и лента знакомств</li>
+          <li><svg class="i"><use href="#i-check"/></svg>Лайки и дизлайки без ограничений</li>
+          <li><svg class="i"><use href="#i-check"/></svg>Гемы за свайпы</li>
+          <li><svg class="i"><use href="#i-check"/></svg>Фиолетовая тема оформления</li>
+        </ul>
+        <button class="btn ghost" id="buyBase"></button>
+      </div>
 
-  <!-- ===== ОЦЕНКА ===== -->
-  <section class="tab" id="tab-rate">
-    <div class="unavail">
-      <svg><use href="#i-skip"/></svg>
-      <h2>Временно недоступно</h2>
-      <p>Просмотр анкет сейчас отключён.<br>Загляните позже.</p>
-    </div>
-  </section>
+      <div class="plan pro" id="plan-superflower">
+        <div class="tag">РЕКОМЕНДУЕМ</div>
+        <h3><svg class="i"><use href="#i-flower"/></svg>SuperFlower</h3>
+        <div class="price"><b>299 ★</b> / месяц</div>
+        <ul>
+          <li><svg class="i"><use href="#i-check"/></svg>Всё из FlowBase</li>
+          <li><svg class="i"><use href="#i-check"/></svg>Открывается выбор темы: фиолетовая, тёмная и светлая</li>
+          <li><svg class="i"><use href="#i-check"/></svg>Значок SuperFlower на вашей анкете</li>
+        </ul>
+        <button class="btn" id="buyPro"></button>
+        <button class="btn lime" id="buyGems" type="button"></button>
+        <div class="hint" id="proUntil" style="display:none"></div>
+      </div>
+    </section>
 
-  <!-- ===== ПОДПИСКА ===== -->
-  <section class="tab" id="tab-sub">
-    <h1>Подписка</h1>
-    <p class="sub">Больше оценок, приоритет в выдаче и видимость тех, кто вас оценил.</p>
+    <!-- ===== НАСТРОЙКИ ===== -->
+    <section class="tab" id="tab-set">
+      <h1>Настройки</h1>
+      <p class="sub">Оформление и поведение приложения.</p>
 
-    <div class="plan" data-plan="free">
-      <h3>Старт <em>бесплатно</em></h3>
-      <ul>
-        <li><svg><use href="#i-check"/></svg>10 оценок в день</li>
-        <li><svg><use href="#i-check"/></svg>Одна анкета</li>
-      </ul>
-      <button class="btn ghost" data-buy="free"></button>
-    </div>
+      <div class="ghead">Оформление</div>
+      <div class="group" id="themeBox"></div>
 
-    <div class="plan hot" data-plan="premium">
-      <h3>Premium <em>299 ★ / мес</em></h3>
-      <ul>
-        <li><svg><use href="#i-check"/></svg>Безлимитные оценки</li>
-        <li><svg><use href="#i-check"/></svg>Приоритет анкеты в выдаче</li>
-        <li><svg><use href="#i-check"/></svg>Видно, кто вас оценил</li>
-      </ul>
-      <button class="btn" data-buy="premium"></button>
-    </div>
+      <div class="ghead">Приложение</div>
+      <div class="group">
+        <button class="row" id="rowVib">
+          <span class="ric"><svg class="i"><use href="#i-vib"/></svg></span>
+          <span class="rt"><b>Вибрация</b><small>Отклик при лайках и нажатиях</small></span>
+          <span class="switch" id="swVib"></span>
+        </button>
+        <button class="row" id="rowReset">
+          <span class="ric"><svg class="i"><use href="#i-reset"/></svg></span>
+          <span class="rt"><b>Сбросить ленту</b><small>Показать все анкеты заново</small></span>
+        </button>
+        <button class="row" id="rowWipe">
+          <span class="ric mute"><svg class="i"><use href="#i-trash"/></svg></span>
+          <span class="rt"><b>Удалить мои данные</b><small>Анкета, настройки, гемы и лайки на этом устройстве</small></span>
+        </button>
+      </div>
 
-    <div class="plan" data-plan="vip">
-      <h3>VIP <em>599 ★ / мес</em></h3>
-      <ul>
-        <li><svg><use href="#i-check"/></svg>Всё из Premium</li>
-        <li><svg><use href="#i-check"/></svg>Метка VIP на анкете</li>
-        <li><svg><use href="#i-check"/></svg>Показ анкеты в топе каждый день</li>
-      </ul>
-      <button class="btn" data-buy="vip"></button>
-    </div>
-  </section>
+    </section>
 
-</main>
+    <!-- ===== НАСТРОЙКИ ПРОФИЛЯ ===== -->
+    <section class="tab" id="tab-pset">
+      <h1>Настройки профиля</h1>
+      <p class="sub">Баннер, хештег и значок — как будет выглядеть ваша анкета.</p>
 
-<nav>
-  <button data-tab="profile" class="active"><svg><use href="#i-user"/></svg>Профиль</button>
-  <button data-tab="rate"><svg><use href="#i-rate"/></svg>Оценка</button>
-  <button data-tab="sub"><svg><use href="#i-crown"/></svg>Подписка</button>
-</nav>
+      <div class="pv" id="psPreview"></div>
+
+      <div class="ghead">Баннер</div>
+      <div class="bngrid" id="bnGrid"></div>
+
+      <div class="ghead">Хештег рядом с именем</div>
+      <div class="hashbox"><span>#</span><input type="text" id="tagIn" maxlength="16" placeholder="надпись" autocomplete="off"></div>
+      <div class="hint">Показывается рядом с именем полупрозрачным серым цветом.</div>
+
+      <div class="ghead">Значок подписки</div>
+      <div class="bdgrid" id="bdGrid"></div>
+      <div class="hint" id="bdNote"></div>
+    </section>
+
+    <!-- ===== АНКЕТА (последняя вкладка) ===== -->
+    <section class="tab" id="tab-me">
+      <h1>Моя анкета</h1>
+      <p class="sub">Фото, имя и пара слов о себе — этого достаточно.</p>
+
+      <div class="status" id="pStatus"><b></b><span>Анкета не заполнена</span></div>
+
+      <div class="me-card">
+        <div class="me-top">
+          <div class="avatar" id="avatar"><svg class="i"><use href="#i-cam"/></svg><div class="plus"><svg class="i"><use href="#i-plus"/></svg></div><input type="file" id="photoInput" accept="image/*" aria-label="Выбрать фото"></div>
+          <div class="field">
+            <label class="l">Имя</label>
+            <input type="text" id="fName" maxlength="30" placeholder="Как вас зовут" autocomplete="off">
+            <div class="hint">Нажмите на фото, чтобы выбрать</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="l">Описание</label>
+          <textarea id="fAbout" maxlength="200" placeholder="Расскажите о себе в паре предложений"></textarea>
+          <div class="count"><span id="cnt">0</span> / 200</div>
+        </div>
+      </div>
+
+      <button class="btn" id="saveBtn"><svg class="i"><use href="#i-check"/></svg>Сохранить анкету</button>
+
+      <div class="pv-title">Так вас увидят другие</div>
+      <div class="pv" id="preview"></div>
+    </section>
+
+  </main>
+
+  <nav>
+    <button data-tab="feed" class="active"><svg class="i"><use href="#i-cards"/></svg>Лента</button>
+    <button data-tab="chat" class="chat"><svg class="i"><use href="#i-chat"/></svg>Чат</button>
+    <button data-tab="sub" class="subtab"><svg class="i"><use href="#i-crown"/></svg>Подписка</button>
+    <button data-tab="set"><svg class="i"><use href="#i-sliders"/></svg>Настройки</button>
+    <button data-tab="me"><svg class="i"><use href="#i-user"/></svg>Анкета</button>
+    <button data-tab="pset" class="psettab"><svg class="i"><use href="#i-edit"/></svg>Профиль</button>
+  </nav>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-  /* ---------- Telegram ---------- */
-  const tg = window.Telegram && window.Telegram.WebApp;
-  const inTG = !!(tg && tg.initData);
-  if (tg){
-    tg.ready(); tg.expand();
-    const setH=()=>{ const h=tg.viewportStableHeight||tg.viewportHeight; if(h) document.documentElement.style.setProperty('--tgh',h+'px'); };
-    setH(); try{ tg.onEvent('viewportChanged',setH); }catch(e){}
-    try{ tg.setHeaderColor('#09090a'); tg.setBackgroundColor('#09090a'); tg.setBottomBarColor && tg.setBottomBarColor('#0d0d0f'); }catch(e){}
+  /* ---------- Telegram (подключается безопасно, страница работает и без него) ---------- */
+  const tgw = ()=> (window.Telegram && window.Telegram.WebApp) || null;
+  const inTG = ()=>{ const t=tgw(); return !!(t && t.initData); };
+  const THEME_BG = {purple:'#140a24', dark:'#09090d', light:'#f3f3f9'};
+  function tgColors(){
+    const t=tgw(); if(!t) return;
+    const c=THEME_BG[currentTheme()]||'#140a24';
+    try{ t.setHeaderColor(c); t.setBackgroundColor(c); t.setBottomBarColor && t.setBottomBarColor(c); }catch(e){}
   }
-  const haptic = (t)=>{ try{ tg.HapticFeedback.impactOccurred(t||'light'); }catch(e){} };
+  function tgSetup(){
+    const t=tgw(); if(!t) return;
+    try{ t.ready(); t.expand(); }catch(e){}
+    tgColors();
+  }
+  (function loadTG(){
+    const s=document.createElement('script');
+    s.src='https://telegram.org/js/telegram-web-app.js';
+    s.async=true; s.onload=tgSetup; s.onerror=function(){};
+    document.head.appendChild(s);
+  })();
 
-  /* ---------- Хранилище ---------- */
-  const KEY='tgdate_v1';
-  const def = {profile:{}, rated:{}, plan:'free', day:'', used:0};
+  /* ---------- Состояние ---------- */
+  const KEY='flowersmeet_v2';
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  const def={profile:{},reacted:{},plan:'flowbase',planUntil:0,theme:'purple',vibe:true,gems:0,gemWin:{start:0,count:0},pset:{banner:'none',tag:'',badge:'star'}};
   let S;
-  try{ S = Object.assign({}, def, JSON.parse(localStorage.getItem(KEY)||'{}')); }catch(e){ S = Object.assign({}, def); }
-  const save = ()=>{ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Не удалось сохранить: мало места'); } };
-  const today = ()=> new Date().toISOString().slice(0,10);
-  if (S.day !== today()){ S.day = today(); S.used = 0; save(); }
+  try{
+    S=Object.assign({},clone(def),JSON.parse(localStorage.getItem(KEY)||'{}'));
+    if(!localStorage.getItem(KEY)){ // перенос анкеты из прошлой версии
+      const old=JSON.parse(localStorage.getItem('flowersmeet_v1')||'null');
+      if(old && old.profile) S.profile=old.profile;
+    }
+  }catch(e){ S=clone(def); }
+  if(!S.gemWin || typeof S.gemWin!=='object') S.gemWin={start:0,count:0};
+  S.pset=Object.assign({},def.pset,(S.pset&&typeof S.pset==='object')?S.pset:{});
+  if(!['none','rose','lilac','sea','mint','sun','fire','night'].includes(S.pset.banner)) S.pset.banner='none';
+  if(!['star','moon','paw','ast','fck'].includes(S.pset.badge)) S.pset.badge='star';
+  S.pset.tag=String(S.pset.tag||'').replace(/[#\s]/g,'').slice(0,16);
+  const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('Не удалось сохранить: мало места'); } };
+  const isPro=()=>S.plan==='superflower' && (!S.planUntil || S.planUntil>Date.now());
+  const currentTheme=()=> isPro()&&['purple','dark','light'].includes(S.theme) ? S.theme : 'purple';
 
-  // Подписка может прийти из бота после оплаты: ?plan=premium
-  const qp = new URLSearchParams(location.search).get('plan');
-  if (qp && ['free','premium','vip'].includes(qp)){ S.plan = qp; save(); }
+  // Подписка может прийти из бота после оплаты: ?plan=superflower
+  try{
+    const qp=new URLSearchParams(location.search).get('plan');
+    if(qp==='superflower'||qp==='flowbase'){ S.plan=qp; save(); }
+  }catch(e){}
 
-  const $ = (s)=>document.querySelector(s);
-  const $$ = (s)=>document.querySelectorAll(s);
-  const esc = (s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const $=(s)=>document.querySelector(s);
+  const $$=(s)=>document.querySelectorAll(s);
+  const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const icon=(n)=>'<svg class="i"><use href="#i-'+n+'"/></svg>';
 
   function toast(t){
     const el=$('#toast'); el.textContent=t; el.classList.add('show');
-    clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2200);
+    clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2400);
   }
+  function haptic(type){
+    if(!S.vibe) return;
+    try{ tgw().HapticFeedback.impactOccurred(type||'light'); }catch(e){
+      try{ navigator.vibrate && navigator.vibrate(type==='medium'?14:6); }catch(_){}
+    }
+  }
+
+  /* ---------- Тема ---------- */
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme',currentTheme());
+    tgColors();
+  }
+
+  /* ---------- Гемы: +10 за свайп, награда только за 10 свайпов в час ---------- */
+  const GEM_PER=10, GEM_MAX=10, HOUR=3600000;
+  function refreshWindow(){
+    if(S.gemWin.start && Date.now()-S.gemWin.start>=HOUR){ S.gemWin={start:0,count:0}; save(); }
+  }
+  function cdLeft(){
+    refreshWindow();
+    return S.gemWin.count>=GEM_MAX ? Math.max(0,S.gemWin.start+HOUR-Date.now()) : 0;
+  }
+  const fmt=(ms)=>{ const s=Math.max(0,Math.ceil(ms/1000)); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); };
+  function renderGemInfo(){
+    const left=cdLeft();
+    $('#gemNum').textContent=S.gems;
+    $('#gemCount').textContent=S.gemWin.count;
+    $('#gemNormal').style.display=left>0?'none':'flex';
+    $('#gemCd').style.display=left>0?'flex':'none';
+    if(left>0) $('#gemTimer').textContent=fmt(left);
+  }
+  function awardGems(){
+    const left=cdLeft();
+    if(left>0){ toast('Гемы на перезарядке: ещё '+fmt(left)); return; }
+    if(!S.gemWin.count) S.gemWin.start=Date.now();
+    S.gemWin.count++; S.gems+=GEM_PER; save();
+    renderGemInfo();
+    const pill=$('#gemPill');
+    pill.classList.remove('pulse'); void pill.offsetWidth; pill.classList.add('pulse');
+    const fx=document.createElement('span'); fx.className='gemfx'; fx.textContent='+'+GEM_PER; pill.appendChild(fx);
+    setTimeout(()=>fx.remove(),1000);
+    if(S.gemWin.count>=GEM_MAX) toast('Лимит гемов на этот час достигнут. Следующие через '+fmt(cdLeft()));
+  }
+  setInterval(renderGemInfo,1000);
 
   /* ---------- Вкладки ---------- */
   function openTab(name){
-    $$('.tab').forEach(t=>t.classList.toggle('active', t.id==='tab-'+name));
-    $$('nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
-    $('main').scrollTop=0;
-    
+    if(name==='pset' && !complete(S.profile)){ toast('Сначала создайте анкету'); name='me'; }
+    $$('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+name));
+    $$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+    $('#main').scrollTop=0;
+    if(name==='feed') renderFeed();
     if(name==='sub') renderPlans();
-    if(name==='profile') renderStats();
+    if(name==='set') renderSettings();
+    if(name==='me') renderProfile();
+    if(name==='pset') renderPSet();
     haptic('light');
   }
   $$('nav button').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
 
-  /* ---------- Профиль ---------- */
-  const f = {name:$('#fName'),age:$('#fAge'),gender:$('#fGender'),city:$('#fCity'),about:$('#fAbout')};
-  let photo = S.profile.photo || '';
+  /* ---------- Демо-анкеты (в боевой версии приходят с сервера) ---------- */
+  const DEMO=[
+    {id:1,name:'Алина',text:'Люблю кофе, кино и долгие прогулки по вечернему городу. Ищу спокойного и надёжного человека.',c:'#7a33b8'},
+    {id:2,name:'Дмитрий',text:'Работаю в IT, по выходным — горы и фотография. Ценю юмор и честность.',c:'#3550c9'},
+    {id:3,name:'Мария',text:'Дизайнер. Обожаю книги, джаз и путешествия на машине без маршрута.',c:'#b3306f'},
+    {id:4,name:'Артём',text:'Спорт, готовка и хорошие разговоры. Ищу серьёзные отношения.',c:'#5a3fa8'},
+    {id:5,name:'Ксения',text:'Учусь на архитектора. Люблю музеи, зиму и настольные игры.',c:'#9d2d62'},
+    {id:6,name:'Илья',text:'Музыкант. Играю на гитаре, люблю живые концерты и ночные города.',c:'#2f6dc4'},
+    {id:7,name:'Виктория',text:'Юрист. Бег по утрам, итальянская кухня и честность без лишних слов.',c:'#8a3ab0'},
+    {id:8,name:'Максим',text:'Предприниматель. Люблю море, мотоциклы и уверенных людей.',c:'#4a3bb5'}
+  ];
 
-  function fillProfile(){
-    const p=S.profile;
-    f.name.value=p.name||''; f.age.value=p.age||''; f.gender.value=p.gender||'';
-    f.city.value=p.city||''; f.about.value=p.about||'';
-    $('#cnt').textContent=f.about.value.length;
-    setPhoto(photo);
-    const ok = isComplete(p);
-    $('#pStatus').className='status'+(ok?' ok':'');
-    $('#pStatus span').textContent = ok ? 'Анкета заполнена' : 'Анкета не заполнена';
-    updateHero();
+  /* ---------- Лента ---------- */
+  let busy=false;
+  const FEED_ON=false; // true — вернуть просмотр анкет
+  function cardHTML(u,top,enter){
+    return '<div class="pcard '+(top?'top'+(enter?' enter':''):'next')+'" data-id="'+u.id+'">'+
+      '<div class="pic" style="background:'+u.c+'">'+
+        '<svg class="fl"><use href="#i-flower"/></svg><div class="ini">'+esc(u.name[0])+'</div></div>'+
+      '<div class="info"><h2>'+esc(u.name)+'</h2><p>'+esc(u.text)+'</p></div>'+
+    '</div>';
   }
-  function updateHero(){
-    const name=f.name.value.trim(), age=parseInt(f.age.value,10)||0, city=f.city.value.trim();
-    $('#heroName').textContent = name ? (name+(age?', '+age:'')) : 'Моя анкета';
-    $('#heroSub').textContent = city || 'Заполните данные о себе';
-    const done=[name, age>=18, f.gender.value, city, photo].filter(Boolean).length;
-    $('#barFill').style.width=(done/5*100)+'%';
+  function renderFeed(enter){
+    busy=false;
+    if(!FEED_ON){
+      $('#gemInfo').style.display='none';
+      $('#actions').style.display='none';
+      const st=$('#stack'); st.style.height='auto';
+      st.innerHTML='<div class="soon off"><div class="bub">'+icon('hourglass')+'</div>'+
+        '<b>Временно недоступно</b><p>Просмотр анкет сейчас отключён. Загляните чуть позже.</p></div>';
+      return;
+    }
+    renderGemInfo();
+    const q=DEMO.filter(d=>!(d.id in S.reacted));
+    const stack=$('#stack'), actions=$('#actions');
+    if(!q.length){
+      actions.style.display='none';
+      stack.innerHTML='<div class="empty">'+icon('heart')+
+        '<p>Новые анкеты закончились.<br>Загляните чуть позже.</p>'+
+        '<button class="btn small" id="againBtn">'+icon('reset')+'Начать заново</button></div>';
+      $('#againBtn').onclick=()=>{ S.reacted={}; save(); renderFeed(); };
+      return;
+    }
+    actions.style.display='flex';
+    const two=q.slice(0,2);
+    stack.innerHTML=two.map((u,i)=>cardHTML(u,i===0,enter)).reverse().join('');
+    attachDrag($('#stack .pcard.top'));
   }
-  ['name','age','gender','city'].forEach(k=>f[k].addEventListener('input',updateHero));
-  f.gender.addEventListener('change',updateHero);
-  $('#photoPrev').addEventListener('click',()=>$('#photoInput').click());
-  function isComplete(p){ return !!(p.name && p.age>=18 && p.gender && p.city && p.photo); }
-  function setPhoto(src){
-    const el=$('#photoPrev');
-    if(src){ el.style.backgroundImage='url('+src+')'; el.classList.add('has'); }
-    else { el.style.backgroundImage=''; el.classList.remove('has'); }
-  }
-  f.about.addEventListener('input',()=>$('#cnt').textContent=f.about.value.length);
-  $('#photoBtn').addEventListener('click',()=>$('#photoInput').click());
-  $('#photoInput').addEventListener('change',e=>{
-    const file=e.target.files[0]; if(!file) return;
-    const img=new Image(), url=URL.createObjectURL(file);
-    img.onload=()=>{
-      const max=640, k=Math.min(1,max/Math.max(img.width,img.height));
-      const c=document.createElement('canvas');
-      c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
-      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      photo=c.toDataURL('image/jpeg',0.8); setPhoto(photo); updateHero(); URL.revokeObjectURL(url);
+  function attachDrag(el){
+    if(!el) return;
+    let sx=0,dx=0,drag=false;
+    el.addEventListener('pointerdown',e=>{
+      if(busy) return; drag=true; sx=e.clientX; dx=0;
+      try{ el.setPointerCapture(e.pointerId); }catch(_){}
+      el.style.transition='none';
+    });
+    el.addEventListener('pointermove',e=>{
+      if(!drag) return;
+      dx=e.clientX-sx;
+      el.style.transform='translateX('+dx+'px) rotate('+(dx/45)+'deg)';
+      el.style.opacity=Math.max(.55,1-Math.abs(dx)/520);
+      el.style.borderColor = dx>25 ? 'var(--a1)' : dx<-25 ? 'var(--a2)' : '';
+    });
+    const end=()=>{
+      if(!drag) return; drag=false;
+      if(Math.abs(dx)>90){ react(dx>0); }
+      else{
+        el.style.transition='transform .4s ease,opacity .4s ease,border-color .4s ease';
+        el.style.transform=''; el.style.opacity=''; el.style.borderColor='';
+      }
     };
-    img.src=url;
-  });
-
-  function collect(){
-    return {name:f.name.value.trim(), age:parseInt(f.age.value,10)||0, gender:f.gender.value,
-            city:f.city.value.trim(), about:f.about.value.trim(), photo:photo};
+    el.addEventListener('pointerup',end);
+    el.addEventListener('pointercancel',end);
   }
-  function validate(p){
-    if(!p.name) return 'Укажите имя';
-    if(!(p.age>=18 && p.age<=99)) return 'Возраст — от 18 лет';
-    if(!p.gender) return 'Выберите пол';
-    if(!p.city) return 'Укажите город';
+  function react(isLike){
+    if(busy) return;
+    const el=$('#stack .pcard.top'); if(!el) return;
+    busy=true;
+    const id=parseInt(el.dataset.id,10);
+    el.style.transition='transform .45s cubic-bezier(.22,.61,.36,1),opacity .45s ease,border-color .3s';
+    el.style.borderColor=isLike?'var(--a1)':'var(--a2)';
+    el.style.transform='translateX('+(isLike?110:-110)+'px) rotate('+(isLike?3:-3)+'deg)';
+    el.style.opacity='0';
+    haptic('light');
+    S.reacted[id]=isLike?1:-1; save();
+    awardGems();
+    setTimeout(()=>renderFeed(true),400);
+  }
+  $('#btnYes').addEventListener('click',()=>react(true));
+  $('#btnNo').addEventListener('click',()=>react(false));
+
+  /* ---------- Анкета ---------- */
+  let photo=S.profile.photo||'';
+  const fName=$('#fName'), fAbout=$('#fAbout');
+  const complete=(p)=>!!(p.name && p.about && p.photo);
+  function renderProfile(){
+    const p=S.profile;
+    fName.value=p.name||''; fAbout.value=p.about||'';
+    $('#cnt').textContent=fAbout.value.length;
+    const av=$('#avatar');
+    if(photo){ av.style.backgroundImage='url('+photo+')'; av.classList.add('has'); }
+    else{ av.style.backgroundImage=''; av.classList.remove('has'); }
+    const ok=complete(p);
+    $('#pStatus').className='status'+(ok?' ok':'');
+    $('#pStatus span').textContent=ok?'Анкета заполнена':'Анкета не заполнена';
+    renderPreview();
+  }
+  const BANNERS=[
+    {id:'none',n:'Нет',c:''},{id:'rose',n:'Роза',c:'#e0457f'},{id:'lilac',n:'Лилия',c:'#8b5cf0'},{id:'sea',n:'Волна',c:'#2f6bef'},
+    {id:'mint',n:'Мята',c:'#1fb58a'},{id:'sun',n:'Солнце',c:'#e8a800'},{id:'fire',n:'Закат',c:'#f0643c'},{id:'night',n:'Ночь',c:'#1d1a33'}
+  ];
+  const BADGES=[{id:'star',n:'Дефолт'},{id:'moon',n:'Луна'},{id:'paw',n:'Лапка'},{id:'ast',n:'Звезда *'},{id:'fck',n:'fck'}];
+  function badgeHTML(id){
+    if(id==='fck') return '<span class="bd-t">fck</span>';
+    return '<svg class="bd"><use href="#i-'+(['star','moon','paw','ast'].includes(id)?id:'star')+'"/></svg>';
+  }
+  function profCardHTML(name,about,ph){
+    const bn=BANNERS.find(b=>b.id===S.pset.banner);
+    const bg=ph ? 'background-image:url('+ph+')' : 'background:var(--a2)';
+    return '<div class="pcard" style="touch-action:auto">'+
+      '<div class="pic" style="'+bg+'">'+(ph?'':'<svg class="fl"><use href="#i-flower"/></svg><div class="ini">'+esc(name[0]||'?')+'</div>')+'</div>'+
+      (bn&&bn.c?'<div class="banner" style="background:'+bn.c+'"><svg class="b1"><use href="#i-flower"/></svg><svg class="b2"><use href="#i-flower"/></svg></div>':'')+
+      '<div class="info"><h2><span>'+esc(name)+'</span>'+(isPro()?badgeHTML(S.pset.badge):'')+
+        (S.pset.tag?'<span class="tg">#'+esc(S.pset.tag)+'</span>':'')+'</h2><p>'+esc(about)+'</p></div>'+
+    '</div>';
+  }
+  function renderPreview(){
+    const name=(fName.value.trim()||'Ваше имя'), about=(fAbout.value.trim()||'Здесь будет ваше описание.');
+    $('#preview').innerHTML=profCardHTML(name,about,photo);
+  }
+  fAbout.addEventListener('input',()=>{ $('#cnt').textContent=fAbout.value.length; renderPreview(); });
+  fName.addEventListener('input',renderPreview);
+  $('#photoInput').addEventListener('change',e=>{
+    const inp=e.target, file=inp.files && inp.files[0]; if(!file) return;
+    const rd=new FileReader();
+    rd.onerror=()=>{ toast('Не удалось прочитать фото'); inp.value=''; };
+    rd.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const max=720, k=Math.min(1,max/Math.max(img.width,img.height));
+        const c=document.createElement('canvas');
+        c.width=Math.max(1,Math.round(img.width*k)); c.height=Math.max(1,Math.round(img.height*k));
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        photo=c.toDataURL('image/jpeg',0.82);
+        const av=$('#avatar'); av.style.backgroundImage='url('+photo+')'; av.classList.add('has');
+        renderPreview(); inp.value='';
+      };
+      img.onerror=()=>{ toast('Не удалось открыть фото'); inp.value=''; };
+      img.src=rd.result;
+    };
+    rd.readAsDataURL(file);
+  });
+  function collect(){ return {name:fName.value.trim(),about:fAbout.value.trim(),photo:photo}; }
+  function check(p){
     if(!p.photo) return 'Добавьте фото';
+    if(!p.name) return 'Укажите имя';
+    if(!p.about) return 'Добавьте описание';
     return '';
   }
   $('#saveBtn').addEventListener('click',()=>{
-    const p=collect(), err=validate(p);
-    if(err){ toast(err); haptic('rigid'); return; }
-    S.profile=p; save(); fillProfile(); toast('Анкета сохранена'); haptic('medium');
+    const p=collect(), err=check(p);
+    if(err){ toast(err); haptic('medium'); return; }
+    S.profile=p; save(); renderProfile(); renderSettings(); toast('Анкета сохранена'); haptic('medium');
   });
-  $('#publishBtn').addEventListener('click',()=>{
-    const p=collect(), err=validate(p);
-    if(err){ toast(err); return; }
-    S.profile=p; save(); fillProfile();
-    if(inTG){
-      // Отправляем в бота без фото (лимит sendData — 4096 байт). Фото бот может запросить отдельно.
-      const payload={type:'profile',name:p.name,age:p.age,gender:p.gender,city:p.city,about:p.about};
-      tg.sendData(JSON.stringify(payload));
-    } else {
-      toast('Отправка работает внутри Telegram');
-    }
-  });
-
-  function renderStats(){
-    const ids=Object.keys(S.rated);
-    $('#stRated').textContent=ids.length;
-    const vals=ids.map(i=>S.rated[i]).filter(v=>v>0);
-    $('#stAvg').textContent=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'—';
-  }
-
-  /* ---------- Анкеты для оценки (демо) ---------- */
-  // В реальном проекте этот список приходит с вашего сервера.
-  const DEMO=[
-    {id:1,name:'Алина',age:24,city:'Москва',about:'Люблю кофе, кино и долгие прогулки. Ищу спокойного и надёжного человека.',c:['#7a0b1c','#1a0509']},
-    {id:2,name:'Дмитрий',age:29,city:'Санкт-Петербург',about:'Работаю в IT, по выходным — горы и фотография. Ценю юмор и честность.',c:['#3a3a42','#0e0e11']},
-    {id:3,name:'Мария',age:26,city:'Казань',about:'Дизайнер. Обожаю книги, джаз и путешествия на машине.',c:['#a3071f','#210208']},
-    {id:4,name:'Артём',age:31,city:'Екатеринбург',about:'Спорт, готовка и хорошие разговоры. Ищу серьёзные отношения.',c:['#4a1018','#0d0405']},
-    {id:5,name:'Ксения',age:23,city:'Новосибирск',about:'Учусь на архитектора. Люблю музеи, зиму и настольные игры.',c:['#5c0716','#14030a']},
-    {id:6,name:'Илья',age:27,city:'Минск',about:'Музыкант. Играю на гитаре, люблю живые концерты и ночные города.',c:['#2d2d33','#09090a']},
-    {id:7,name:'Виктория',age:28,city:'Москва',about:'Юрист. Бег по утрам, итальянская кухня, честность без лишних слов.',c:['#8d0f1f','#1b0409']},
-    {id:8,name:'Максим',age:30,city:'Краснодар',about:'Предприниматель. Люблю море, мотоциклы и уверенных людей.',c:['#3d0c14','#0a0304']}
-  ];
-  const LIMITS={free:10,premium:Infinity,vip:Infinity};
-  const left=()=>Math.max(0,LIMITS[S.plan]-S.used);
-
-  function renderDeck(){
-    const deck=$('#deck'); if(!deck) return; // просмотр анкет временно отключён
-    const queue=DEMO.filter(d=>!(d.id in S.rated));
-    $('#left').textContent = LIMITS[S.plan]===Infinity ? '∞' : left();
-    $('#queue').textContent = queue.length ? 'В очереди: '+queue.length : '';
-
-    if(!queue.length){
-      deck.innerHTML='<div class="empty"><svg><use href="#i-rate"/></svg><p>Новые анкеты закончились.<br>Загляните позже.</p><button class="btn ghost small" id="resetBtn" style="margin:0 auto"><svg><use href="#i-reset"/></svg>Сбросить оценки</button></div>';
-      $('#resetBtn').onclick=()=>{ S.rated={}; save(); renderDeck(); };
-      return;
-    }
-    if(left()===0){
-      deck.innerHTML='<div class="empty"><svg><use href="#i-crown"/></svg><p>Лимит оценок на сегодня исчерпан.<br>Оформите Premium для безлимита.</p><button class="btn small" id="goSub" style="margin:0 auto">Подписка</button></div>';
-      $('#goSub').onclick=()=>openTab('sub');
-      return;
-    }
-    const u=queue[0];
-    deck.innerHTML=
-      '<div class="card">'+
-        '<div class="pic" style="background:linear-gradient(160deg,'+u.c[0]+','+u.c[1]+')">'+
-          '<div class="ini">'+esc(u.name[0])+'</div>'+
-          '<div class="meta"><h2>'+esc(u.name)+', '+u.age+'</h2><span>'+esc(u.city)+'</span></div>'+
-        '</div>'+
-        '<div class="about">'+esc(u.about)+'</div>'+
-      '</div>'+
-      '<div class="scale">'+[1,2,3,4,5,6,7,8,9,10].map(n=>'<button data-s="'+n+'">'+n+'</button>').join('')+'</div>'+
-      '<button class="btn ghost" id="skipBtn"><svg><use href="#i-skip"/></svg>Пропустить</button>';
-
-    $$('#deck .scale button').forEach(b=>b.addEventListener('click',()=>{
-      b.classList.add('sel'); haptic('medium');
-      S.rated[u.id]=parseInt(b.dataset.s,10); S.used++; save();
-      setTimeout(renderDeck,160);
-    }));
-    $('#skipBtn').addEventListener('click',()=>{
-      S.rated[u.id]=0; save(); haptic('light'); renderDeck();
-    });
-  }
 
   /* ---------- Подписка ---------- */
-  const NAMES={free:'Старт',premium:'Premium',vip:'VIP'};
-  function renderPlans(){
-    $$('.plan[data-plan]').forEach(el=>{
-      const id=el.dataset.plan, btn=el.querySelector('[data-buy]');
-      const cur=S.plan===id;
-      el.classList.toggle('cur',cur);
-      btn.textContent = cur ? 'Ваш тариф' : (id==='free' ? 'Перейти на Старт' : 'Подключить');
-      btn.style.opacity = cur ? .55 : 1;
-    });
-    const b=$('#planBadge'); b.textContent=NAMES[S.plan]; b.classList.toggle('on',S.plan!=='free');
+  const PRO_GEMS=9400, MONTH=30*24*3600000;
+  function ask(msg,cb){
+    const t=tgw();
+    if(inTG() && t.showConfirm){ t.showConfirm(msg,ok=>{ if(ok) cb(); }); }
+    else if(confirm(msg)) cb();
   }
-  $$('[data-buy]').forEach(b=>b.addEventListener('click',(e)=>{
-    e.preventDefault();
-    const plan=b.dataset.buy;
-    if(plan===S.plan){ toast('Это ваш текущий тариф'); return; }
+  function renderChip(){
+    const c=$('#chip'); c.textContent=isPro()?'SuperFlower':'FlowBase'; c.classList.toggle('pro',isPro());
+  }
+  function renderPlans(){
+    const b1=$('#buyBase'), b2=$('#buyPro');
+    $('#plan-flowbase').classList.toggle('cur',!isPro());
+    $('#plan-superflower').classList.toggle('cur',isPro());
+    b1.textContent=!isPro()?'Ваш тариф':'Перейти на FlowBase'; b1.disabled=!isPro();
+    b2.textContent=isPro()?'Ваш тариф':'Подключить SuperFlower'; b2.disabled=isPro();
+    const gs=$('#buyGems'), pu=$('#proUntil'), viaGems=isPro() && !!S.planUntil;
+    gs.style.display=(isPro() && !S.planUntil)?'none':'flex';
+    gs.innerHTML=icon('gem')+(viaGems?'Продлить за гемы · ':'Купить за гемы · ')+PRO_GEMS;
+    pu.style.display=viaGems?'block':'none';
+    if(viaGems) pu.textContent='Подписка действует до '+new Date(S.planUntil).toLocaleDateString('ru-RU')+'. Продление добавляет ещё 30 дней.';
+    renderChip();
+  }
+  $('#buyBase').addEventListener('click',()=>{
+    if(!isPro()) return;
+    const go=()=>{ S.plan='flowbase'; S.planUntil=0; save(); applyTheme(); renderPlans(); renderSettings(); renderPreview(); toast('Тариф: FlowBase'); };
+    if(S.planUntil) ask('Подписка за гемы ещё действует. Перейти на FlowBase без возврата гемов?',go); else go();
+  });
+  $('#buyPro').addEventListener('click',()=>{
+    if(isPro()) return;
+    const demo=()=>{
+      if(isPro()) return;
+      S.plan='superflower'; S.planUntil=0; save(); applyTheme(); renderPlans(); renderSettings(); renderPreview();
+      toast('Демо: SuperFlower активирован');
+    };
     haptic('medium');
-    if(plan==='free'){ S.plan='free'; save(); renderPlans(); toast('Тариф: Старт'); return; }
-    if(inTG){
-      try{
-        // Бот получит запрос и выставит счёт (Telegram Stars)
-        tg.sendData(JSON.stringify({type:'subscribe',plan:plan}));
-        toast('Запрос отправлен боту…');
-      }catch(err){ toast('Не удалось отправить запрос. Откройте приложение через кнопку бота.'); }
-    } else {
-      // Демо-режим вне Telegram
-      S.plan=plan; save(); renderPlans(); toast('Демо: активирован '+NAMES[plan]);
+    if(inTG()){
+      // Бот выставит счёт в Telegram Stars (sendData закрывает приложение)
+      try{ tgw().sendData(JSON.stringify({type:'subscribe',plan:'superflower'})); }catch(e){}
+      // если приложение не закрылось (sendData не сработал) — включаем демо-режим
+      setTimeout(demo,700);
+    }else{
+      demo();
     }
-  }));
+  });
+
+  $('#buyGems').addEventListener('click',()=>{
+    if(isPro() && !S.planUntil) return;
+    if(S.gems<PRO_GEMS){ toast('Не хватает гемов: нужно '+PRO_GEMS+', у вас '+S.gems); haptic('medium'); return; }
+    ask('Потратить '+PRO_GEMS+' гемов на SuperFlower на 30 дней?',()=>{
+      if(S.gems<PRO_GEMS) return;
+      const base=(isPro() && S.planUntil>Date.now())?S.planUntil:Date.now();
+      S.gems-=PRO_GEMS; S.plan='superflower'; S.planUntil=base+MONTH; save();
+      applyTheme(); renderGemInfo(); renderPlans(); renderSettings(); renderPreview();
+      toast('SuperFlower активирован на месяц'); haptic('medium');
+    });
+  });
+  function checkExpiry(){
+    if(S.plan==='superflower' && S.planUntil && S.planUntil<=Date.now()){
+      S.plan='flowbase'; S.planUntil=0; save();
+      applyTheme(); renderPlans(); renderSettings(); renderPreview();
+      if($('#tab-pset').classList.contains('active')) renderPSet();
+      toast('Подписка SuperFlower закончилась');
+    }
+  }
+
+  /* ---------- Настройки ---------- */
+  const THEMES=[['purple','Фиолетовая'],['dark','Тёмная'],['light','Светлая']];
+  function renderSettings(){
+    const box=$('#themeBox');
+    if(!isPro()){
+      box.innerHTML='<button class="row locked" id="lockRow">'+
+        '<span class="ric mute">'+icon('lock')+'</span>'+
+        '<span class="rt"><b>Тема оформления</b><small>Тёмная и светлая темы доступны с SuperFlower</small></span>'+
+        '<span class="go">›</span></button>';
+      $('#lockRow').onclick=()=>{ toast('Откройте SuperFlower, чтобы менять тему'); openTab('sub'); };
+    }else{
+      box.innerHTML='<div class="themehead"><span class="ric">'+icon('palette')+'</span>'+
+        '<span class="rt"><b>Тема оформления</b><small>Выберите, как выглядит приложение</small></span></div>'+
+        '<div class="themes">'+THEMES.map(t=>
+          '<button class="theme-card'+(currentTheme()===t[0]?' sel':'')+'" data-th="'+t[0]+'">'+
+          '<div class="sw '+t[0]+'"><i></i><i></i></div>'+t[1]+'</button>').join('')+'</div>';
+      $$('#themeBox .theme-card').forEach(b=>b.addEventListener('click',()=>{
+        S.theme=b.dataset.th; save(); applyTheme(); renderSettings(); haptic('medium');
+      }));
+    }
+    $('#swVib').classList.toggle('on',!!S.vibe);
+  }
+  $('#rowVib').addEventListener('click',()=>{ S.vibe=!S.vibe; save(); renderSettings(); if(S.vibe) haptic('medium'); });
+  $('#rowReset').addEventListener('click',()=>{ S.reacted={}; save(); toast('Лента сброшена'); });
+  $('#rowWipe').addEventListener('click',()=>{
+    const go=()=>{
+      try{ localStorage.removeItem(KEY); localStorage.removeItem('flowersmeet_v1'); }catch(e){}
+      S=Object.assign({},clone(def),{gemWin:{start:0,count:0}}); photo=''; applyTheme(); renderChip(); renderSettings(); renderProfile(); renderFeed();
+      toast('Данные удалены');
+    };
+    const t=tgw(), msg='Удалить анкету, настройки, гемы и лайки на этом устройстве?';
+    if(inTG() && t.showConfirm){ t.showConfirm(msg,ok=>{ if(ok) go(); }); }
+    else if(confirm(msg)) go();
+  });
+
+  /* ---------- Настройки профиля ---------- */
+  function psPreview(){
+    const p=S.profile;
+    $('#psPreview').innerHTML=profCardHTML(p.name||'Ваше имя',p.about||'',p.photo||'');
+  }
+  function renderPSet(){
+    psPreview();
+    $('#bnGrid').innerHTML=BANNERS.map(b=>
+      '<button type="button" class="bn'+(S.pset.banner===b.id?' sel':'')+'" data-b="'+b.id+'">'+
+      '<span class="bnc'+(b.c?'':' none')+'"'+(b.c?' style="background:'+b.c+'"':'')+'></span>'+b.n+'</button>').join('');
+    $('#bdGrid').innerHTML=BADGES.map(b=>
+      '<button type="button" class="bdo'+(S.pset.badge===b.id?' sel':'')+(isPro()?'':' locked')+'" data-bd="'+b.id+'">'+
+      '<span class="ico">'+badgeHTML(b.id)+'</span>'+b.n+'</button>').join('');
+    $('#bdNote').textContent=isPro()?'Значок отображается рядом с вашим именем.':'Значок виден на анкете только с подпиской SuperFlower.';
+    const t=$('#tagIn'); if(t.value!==S.pset.tag) t.value=S.pset.tag;
+  }
+  $('#bnGrid').addEventListener('click',e=>{
+    const b=e.target.closest('[data-b]'); if(!b) return;
+    S.pset.banner=b.dataset.b; save(); renderPSet(); haptic('light');
+  });
+  $('#bdGrid').addEventListener('click',e=>{
+    const b=e.target.closest('[data-bd]'); if(!b) return;
+    if(!isPro()){ toast('Значок доступен с SuperFlower'); haptic('medium'); return; }
+    S.pset.badge=b.dataset.bd; save(); renderPSet(); haptic('light');
+  });
+  $('#tagIn').addEventListener('input',e=>{
+    const v=e.target.value.replace(/[#\s]/g,'').slice(0,16);
+    if(v!==e.target.value) e.target.value=v;
+    S.pset.tag=v; save(); psPreview();
+  });
 
   /* ---------- Старт ---------- */
-  fillProfile(); renderStats(); renderPlans();
+  applyTheme(); renderChip(); renderFeed(); renderPlans(); renderSettings(); renderProfile();
+  checkExpiry(); setInterval(checkExpiry,1000);
+  if(tgw()) tgSetup();
 })();
 </script>
 </body>
